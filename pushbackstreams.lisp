@@ -1,18 +1,3 @@
-(in-package :cl-user)
-
-(defpackage :pushbackstreams
-  (:use :common-lisp)
-  (:export :pushbackstream
-	   :pb-read-byte
-	   :pb-read-bytes-until
-	   :pb-read-sequence
-	   :pb-unread-byte
-	   :pb-write-chunks
-	   :size-of-chunks
-	   :chunk-vector
-	   :chunk-vector-push
-	   :chunk-vector-pop))
-
 (in-package :pushbackstreams)
 
 ;
@@ -40,6 +25,10 @@
 (defmethod initialize-instance :after ((vec chunk-vector) &key)
   (with-slots (chunk-size chunks) vec
     (vector-push-extend (make-array chunk-size :fill-pointer 0) chunks)))
+
+(defun pb-stream-position (pb-stream)
+  (- (file-position (wrapped-stream pb-stream))
+     (fill-pointer (pushback-buffer pb-stream))))
 
 (defun chunk-vector-push (el vec)
   (with-slots (chunk-size chunks) vec
